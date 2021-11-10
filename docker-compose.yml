@@ -1,0 +1,42 @@
+version: '3.7'
+
+networks:
+    backend:
+        driver: bridge
+
+services:
+    tracer:
+        image: jaegertracing/all-in-one:1.28
+        ports:
+            - '6831:6831/udp'
+            - '16686:16686'
+        networks:
+            - backend
+    backend:
+        build: .
+        environment:
+            - API_HOST=0.0.0.0
+            - API_PORT=8080
+            - OTEL_EXPORTER_JAEGER_AGENT_HOST=tracer
+            - OTEL_EXPORTER_JAEGER_AGENT_PORT=6831
+        volumes:
+            - src:/src/src:ro
+        volumes:
+            - type: bind
+              source: ./Cargo.lock
+              target: /src/Cargo.lock
+              read_only: true
+            - type: bind
+              source: ./Cargo.toml
+              target: /src/Cargo.toml
+              read_only: true
+            - type: bind
+              source: ./docker.sh
+              target: /api/docker.sh
+              read_only: true
+        networks:
+            - backend
+        depends_on:
+            - tracer
+        ports:
+            - '8080:8080'
