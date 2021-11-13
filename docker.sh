@@ -1,4 +1,4 @@
 #!/bin/bash
 
-ls 
+sqlx migrate run
 ./web-of-trust-backend

@@ -1,0 +1,151 @@
+{
+  "db": "PostgreSQL",
+  "0326a4430dae57dea6b27dcec038307275ee34d6847fe52033d3be68fb1134e3": {
+    "query": "insert into domain_link (source_id, target_id)\n               values ($1, $2)\n               on conflict on constraint dl_pk\n               do nothing",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "1d065a33cd350e5a13f828217d4f675291efe5fd2828832e8dced0cb776ab15c": {
+    "query": "update domains set last_updated = $1 where id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "2c7aee2e3278b8cfa6542604a5a881d21b1803edafd17185de726f8093818ef2": {
+    "query": "select fqdn, last_updated\n        from domains\n        where fqdn_hash like concat($1::text, '%')\n        limit $2\n        offset $3",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "fqdn",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "last_updated",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
+  "36a76b46dec3b05ee3061782e3c390dfff1a00e3dd983ece396172cb1e678a73": {
+    "query": "insert into domains (fqdn, fqdn_hash, last_updated) values ($1, $2, $3) returning id",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "46bf5320f41fe8f46b968230db6a5c161071f0a134fd5907603d23ac14be142c": {
+    "query": "\n        select last_updated, id from domains where fqdn = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "last_updated",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
+  "79c973b4a1ae7ecad5d6f196843db158771d55bbb23f8caaca1f10a496c33362": {
+    "query": "select id from domains where fqdn = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "8fb4435abc8bc9a54741eaed1035eb4ececfa67729122a0d2446df1be6e2078d": {
+    "query": "\n            select last_updated, id from domains where fqdn = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "last_updated",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  }
+}

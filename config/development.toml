@@ -1,0 +1,21 @@
+debug = true
+
+[api]
+host = "localhost"
+port = 8080
+
+[caching]
+redis_host = "localhost"
+redis_port = "6379"
+
+[database]
+port = 5432
+host = "localhost"
+user = "web-of-web-trust"
+password = "web-of-web-trust"
+database = "web-of-web-trust"
+
+[tracing]
+meter = "backend"
+host = "localhost"
+port = 14268

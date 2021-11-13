@@ -1,0 +1,21 @@
+debug = false
+
+[api]
+host = "0.0.0.0"
+port = 8080
+
+[caching]
+redis_host = "cache"
+redis_port = "6379"
+
+[database]
+port = 5432
+host = "database"
+user = "web-of-web-trust"
+password = "web-of-web-trust"
+database = "web-of-web-trust"
+
+[tracing]
+meter = "backend"
+host = "tracer"
+port = 14268

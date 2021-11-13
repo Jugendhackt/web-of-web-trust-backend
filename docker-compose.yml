@@ -1,30 +1,60 @@
 version: '3.7'
 
+# Network segmentation is important
 networks:
-    backend:
+    caching:
+        driver: bridge
+    data:
+        driver: bridge
+    tracing: 
         driver: bridge
 
 services:
+    cache:
+        image: redis:alpine
+      #  ports:
+    #        - '6379:6379'
+        networks:
+            - caching
+    database:
+        image: postgres:14-alpine
+        ports:
+            - '5432:5432'
+        networks:
+            - data
+        environment:
+            - POSTGRES_PASSWORD=web-of-web-trust
+            - POSTGRES_USER=web-of-web-trust
+            - POSTGRES_DB=web-of-web-trust
     tracer:
-        image: jaegertracing/all-in-one:1.28
+        image: jaegertracing/all-in-one:latest
         ports:
             - '6831:6831/udp'
+            - '6832:6832/udp'
             - '16686:16686'
+            - '14268:14268'
         networks:
-            - backend
+            - tracing
     backend:
         build: .
         environment:
-            - API_HOST=0.0.0.0
-            - API_PORT=8080
+            - BACKEND_API_HOST=0.0.0.0
+            - BACKEND_API_PORT=8080
             - OTEL_EXPORTER_JAEGER_AGENT_HOST=tracer
             - OTEL_EXPORTER_JAEGER_AGENT_PORT=6831
         volumes:
             - src:/src/src:ro
+            - target:/src/target
+            - config:/api/config:ro
+            - migrations:/src/migrations:ro
         volumes:
             - type: bind
               source: ./Cargo.lock
               target: /src/Cargo.lock
+              read_only: true
+            - type: bind
+              source: ./sqlx-data.json
+              target: /src/sqlx-data.json
               read_only: true
             - type: bind
               source: ./Cargo.toml
@@ -35,8 +65,12 @@ services:
               target: /api/docker.sh
               read_only: true
         networks:
-            - backend
+            - data
+            - tracing
+            - caching
         depends_on:
             - tracer
+            - database
+            - cache
         ports:
             - '8080:8080'

@@ -3,6 +3,7 @@ FROM rust:alpine as base
 FROM base as builder
 
 RUN apk add --no-cache gcc git musl-dev openssl-dev postgresql-dev bash && rustup target add x86_64-unknown-linux-musl
+RUN cargo install sqlx-cli --no-default-features --features postgres
 
 # Set up our environment variables so that we cross-compile using musl-libc by
 # default.
@@ -26,15 +27,21 @@ COPY Cargo.toml Cargo.lock /src/
 
 RUN cargo b --target x86_64-unknown-linux-musl
 
+COPY sqlx-data.json /src
 COPY src /src/src
+COPY migrations /src/migrations
 
-RUN cat src/main.rs && touch src/main.rs && cargo b --target x86_64-unknown-linux-musl
+RUN touch src/*.rs && cargo b --target x86_64-unknown-linux-musl
 
 FROM base
+
+ENV RUN_MODE="docker"
 
 RUN apk add --no-cache postgresql-libs bash
 
 COPY --from=builder /src/target/x86_64-unknown-linux-musl/debug/web-of-trust-backend /api/
+COPY --from=builder /src/migrations /api/migrations/
+COPY config/ /api/config/
 
 WORKDIR /api
 
