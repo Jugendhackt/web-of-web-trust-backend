@@ -7,15 +7,4 @@ This is an experimental backend for the web of web trust browser extension. This
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    subgraph internet
-    Extension -- HTTP API --> N{Nginx}    
-    end
-    subgraph docker
-    N --> S{Backend} 
-    S -- KV-Cache  --> C{{Redis}}
-    S -- Tracing --> T{{Jeager}}
-    S -- Database  --> D[(PostgreSQL)]
-    end
-```
+[![](https://mermaid.ink/img/eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggaW50ZXJuZXRcbiAgICBFeHRlbnNpb24gLS0gSFRUUCBBUEkgLS0-IE57Tmdpbnh9ICAgIFxuICAgIGVuZFxuICAgIHN1YmdyYXBoIGRvY2tlclxuICAgIE4gLS0-IFN7QmFja2VuZH0gXG4gICAgUyAtLSBLVi1DYWNoZSAgLS0-IEN7e1JlZGlzfX1cbiAgICBTIC0tIFRyYWNpbmcgLS0-IFR7e0plYWdlcn19XG4gICAgUyAtLSBEYXRhYmFzZSAgLS0-IERbKFBvc3RncmVTUUwpXVxuICAgIGVuZCIsIm1lcm1haWQiOnsidGhlbWUiOiJkZWZhdWx0In0sInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)](https://mermaid.live/edit#eyJjb2RlIjoiZmxvd2NoYXJ0IExSXG4gICAgc3ViZ3JhcGggaW50ZXJuZXRcbiAgICBFeHRlbnNpb24gLS0gSFRUUCBBUEkgLS0-IE57Tmdpbnh9ICAgIFxuICAgIGVuZFxuICAgIHN1YmdyYXBoIGRvY2tlclxuICAgIE4gLS0-IFN7QmFja2VuZH0gXG4gICAgUyAtLSBLVi1DYWNoZSAgLS0-IEN7e1JlZGlzfX1cbiAgICBTIC0tIFRyYWNpbmcgLS0-IFR7e0plYWdlcn19XG4gICAgUyAtLSBEYXRhYmFzZSAgLS0-IERbKFBvc3RncmVTUUwpXVxuICAgIGVuZCIsIm1lcm1haWQiOiJ7XG4gIFwidGhlbWVcIjogXCJkZWZhdWx0XCJcbn0iLCJ1cGRhdGVFZGl0b3IiOmZhbHNlLCJhdXRvU3luYyI6dHJ1ZSwidXBkYXRlRGlhZ3JhbSI6ZmFsc2V9)
