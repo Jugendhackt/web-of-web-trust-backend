@@ -45,4 +45,6 @@ COPY config/ /api/config/
 
 WORKDIR /api
 
+EXPOSE 8080
+
 CMD ["bash", "docker.sh"]
