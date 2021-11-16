@@ -83,7 +83,8 @@ impl Domain {
                 fqdn
             )
             .fetch_one(pool)
-            .await?.id)
+            .await?
+            .id),
         }
     }
 }
@@ -112,9 +113,16 @@ impl SimpleDomain {
     #[tracing::instrument]
     // doesn't update internal reference to avoid mutability
     pub async fn refresh(&self, pool: &DbPool, last_updated: i64) -> Result<(), APIError> {
-        match sqlx::query!(r#"update domains set last_updated = $1 where id = $2"#, last_updated, self.id).execute(pool).await {
+        match sqlx::query!(
+            r#"update domains set last_updated = $1 where id = $2"#,
+            last_updated,
+            self.id
+        )
+        .execute(pool)
+        .await
+        {
             Ok(_) => Ok(()),
-            Err(e) => Err(e.into())
+            Err(e) => Err(e.into()),
         }
     }
 
@@ -128,13 +136,12 @@ impl SimpleDomain {
             SimpleDomain::hash(trimmed_fqdn.as_bytes()),
             last_updated
         ).fetch_one(pool).await {
-        Ok(rec) =>             Ok(SimpleDomain {
-                id: rec.id,
-                fqdn: trimmed_fqdn.to_owned(),
-                last_updated
-            }),
-        
-        Err(e) => Err(e.into())
+            Ok(rec) => Ok(SimpleDomain {
+                    id: rec.id,
+                    fqdn: trimmed_fqdn.to_owned(),
+                    last_updated
+                }),
+            Err(e) => Err(e.into())
         }
     }
 

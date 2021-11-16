@@ -1,6 +1,5 @@
 use serde::Deserialize;
 
-
 #[derive(Deserialize, Debug)]
 /// # FetchRequest
 /// Request sent by clients for fetching information about domains by a fqdn hash prefix.

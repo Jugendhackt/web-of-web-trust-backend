@@ -92,7 +92,7 @@ async fn update(data: Json<UpdateRequest>, pool: Data<DbPool>) -> APIResponse {
         DomainLink::upsert(
             pool_ref,
             source.id,
-            Domain::get_or_create(pool_ref, link, data.last_updated).await?
+            Domain::get_or_create(pool_ref, link, data.last_updated).await?,
         )
         .await?;
     }

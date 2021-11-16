@@ -1,405 +1,431 @@
 openapi: 3.0.2
 
 info:
-  title: Web of Web Trust backend
-  description: |
-    The web of web trust backend. Making the web a bit more assessable ⚖️
+    title: Web of Web Trust backend
+    description: |
+        The web of web trust backend. Making the web a bit more assessable ⚖️
 
-    ## Idea
+        ## Idea
 
-    The current web is filled with valuable information and can help you in informing yourself.
-    But when informing oneself, you might quickly find out that assessing information and distinguishing between facts and disinformation can be increasingly hard, especially when researching a controversial or political topic.
+        The current web is filled with valuable information and can help you in informing yourself.
+        But when informing oneself, you might quickly find out that assessing information and distinguishing between facts and disinformation can be increasingly hard, especially when researching a controversial or political topic.
 
-    To help with tackling this problem, [we](https://github.com/orgs/Jugendhackt/teams/web-of-web-trust) have gone back to the roots of the first search engines and thought about an easy-to-use but informative way of giving the user insight in the reputability of a website.
-    Similar to the first search engines, like yahoo, we assess websites based on the number of times there are linked by other websites and how many times they link to external websites. This method in itself is simple and doesn't really provide a good way of assessing sources, though.
+        To help with tackling this problem, [we](https://github.com/orgs/Jugendhackt/teams/web-of-web-trust) have gone back to the roots of the first search engines and thought about an easy-to-use but informative way of giving the user insight in the reputability of a website.
+        Similar to the first search engines, like yahoo, we assess websites based on the number of times there are linked by other websites and how many times they link to external websites. This method in itself is simple and doesn't really provide a good way of assessing sources, though.
 
-    And that's where our special sauce comes into play. By having a seed set for both factual news and misinformative news sites, we can build two networks describing the above-mentioned method. We can use these networks to evaluate a score and present it to the user.
-    We can then supplement the data with metadata about e.g. topicality and also, since we have the full index, sites that link to the current website. This allows the user to gain deeper insight in the trust between websites and allows us to build a web-of-web-trust that provides explainability and transparency for scores.
-    We also want, (WIP), to allow the user to set their own weights in the composition of the score to allow for a more personalized scoring.
+        And that's where our special sauce comes into play. By having a seed set for both factual news and misinformative news sites, we can build two networks describing the above-mentioned method. We can use these networks to evaluate a score and present it to the user.
+        We can then supplement the data with metadata about e.g. topicality and also, since we have the full index, sites that link to the current website. This allows the user to gain deeper insight in the trust between websites and allows us to build a web-of-web-trust that provides explainability and transparency for scores.
+        We also want, (WIP), to allow the user to set their own weights in the composition of the score to allow for a more personalized scoring.
 
-    ## End-Product and Architecture
+        ## End-Product and Architecture
 
-    We plan to realize our idea in the form of a browser extension that allows the user to have immediate feedback when visiting a new site.
+        We plan to realize our idea in the form of a browser extension that allows the user to have immediate feedback when visiting a new site.
 
-    > See our current [`progress`](https://github.com/Jugendhackt/web-of-web-trust-client)
+        > See our current [`progress`](https://github.com/Jugendhackt/web-of-web-trust-client)
 
-    ## Privacy-First Design
+        ## Privacy-First Design
 
-    > Thanks to [e1mo](https://github.com/e1mo) and [em0lar](https://github.com/em0lar) we also have a privacy first design for information fetching by clients. 
+        > Thanks to [e1mo](https://github.com/e1mo) and [em0lar](https://github.com/em0lar) we also have a privacy first design for information fetching by clients. 
 
-    ### Why is a special design even needed? 
+        ### Why is a special design even needed? 
 
-    Since all clients, such as the browser extension, will be fetching a website that the user currently visits it would be easy for a malicious operator to track all users.
+        Since all clients, such as the browser extension, will be fetching a website that the user currently visits it would be easy for a malicious operator to track all users.
 
-    To mitigate this thread clients *must* request domains, and ruegen, by the first chars of a [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) of the FQDN.
-    The API will then return all domains that start with the supplied characters in a paginated manner.
-    By using this technique the server may not know the specifc request domain.
+        To mitigate this thread clients *must* request domains, and ruegen, by the first chars of a [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) of the FQDN.
+        The API will then return all domains that start with the supplied characters in a paginated manner.
+        By using this technique the server may not know the specifc request domain.
 
-    > This will also over time make the reversing of hash -> FQDn harder, since domains in the database will grow.
+        > This will also over time make the reversing of hash -> FQDn harder, since domains in the database will grow.
 
-    ## Structure
+        ## Structure
 
-    ### Versions
+        ### Versions
 
-    The API is following a semantic versioning. The experimental API will propose a v1 specification, which will be frozen once the reference implementation is done. A server may advertise versions under `/versions` but is not required to support any specific versions.
-    ### Domains
+        The API is following a semantic versioning. The experimental API will propose a v1 specification, which will be frozen once the reference implementation is done. A server may advertise versions under `/versions` but is not required to support any specific versions.
+        ### Domains
 
-    Domains are websites identified by a [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) and accessed by a [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) of the FQDN. Domains are indexed by `Scrapers` that find a domain by scraping the base-set of domains for each network.
+        Domains are websites identified by a [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name) and accessed by a [BLAKE3](https://github.com/BLAKE3-team/BLAKE3) [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) of the FQDN. Domains are indexed by `Scrapers` that find a domain by scraping the base-set of domains for each network.
 
-    ### Ruegen
+        ### Ruegen
 
-    We offer a collection of pre-sorted [„Presserügen“](https://de.wikipedia.org/wiki/Deutscher_Presserat), a notice of a defect in a publication for german newspapers. 
+        We offer a collection of pre-sorted [„Presserügen“](https://de.wikipedia.org/wiki/Deutscher_Presserat), a notice of a defect in a publication for german newspapers. 
 
-    This collection is connected with the respective domains for the newspapers and are fetchable by the same pattern as domains.
+        This collection is connected with the respective domains for the newspapers and are fetchable by the same pattern as domains.
 
-    ## Credits
+        ## Credits
 
-    Original Developers from Jugendhackt Berlin 2021:
+        Original Developers from Jugendhackt Berlin 2021:
 
-    - Cobalt – [GitLab](https://gitlab.cobalt.rocks/cobalt/) [Website](https://cobalt.rocks)
-    - e1mo – [GitHub](https://github.com/e1mo)
-    - em0lar – [GitHub](https://github.com/em0lar) [Website](https://em0lar.de/)
-    - funi0n – [GitHub](https://github.com/funi0n)
-    - NecnivlixAlpaka – [GitHub](https://github.com/NecnivlixAlpaka)
-    - Schmensch – [GitHub](https://github.com/Schmensch)
-    - smyril42 – [GitHub](https://github.com/smyril42)
-    - Vincent – [GitHub](https://github.com/alpakathrowaway)
-    - Wolfaround - [GitHub](https://github.com/Wolfaround)
+        - Cobalt – [GitLab](https://gitlab.cobalt.rocks/cobalt/) [Website](https://cobalt.rocks)
+        - e1mo – [GitHub](https://github.com/e1mo)
+        - em0lar – [GitHub](https://github.com/em0lar) [Website](https://em0lar.de/)
+        - funi0n – [GitHub](https://github.com/funi0n)
+        - NecnivlixAlpaka – [GitHub](https://github.com/NecnivlixAlpaka)
+        - Schmensch – [GitHub](https://github.com/Schmensch)
+        - smyril42 – [GitHub](https://github.com/smyril42)
+        - Vincent – [GitHub](https://github.com/alpakathrowaway)
+        - Wolfaround - [GitHub](https://github.com/Wolfaround)
 
-    And our mentor:
+        And our mentor:
 
-    - pajowu - [GitHub](https://github.com/pajowu) [Website](https://pajowu.de/)
-  contact:
-    name: Cobalt
-    url: http://cobalt.rocks/
-    email: c0balt+web-of-web-trust@disroot.org
-  license:
-    name: AGPL 3.0 (only)
-    url: https://www.gnu.org/licenses/agpl-3.0.txt
-  version: 0.1.0b0
+        - pajowu - [GitHub](https://github.com/pajowu) [Website](https://pajowu.de/)
+    contact:
+        name: Cobalt
+        url: http://cobalt.rocks/
+        email: c0balt+web-of-web-trust@disroot.org
+    license:
+        name: AGPL 3.0 (only)
+        url: https://www.gnu.org/licenses/agpl-3.0.txt
+    version: 0.1.0b0
 paths:
-  /version:
-    get:
-      tags:
-        - Meta
-      summary: Interface for API functionality
-      description: Route for getting information about supported API versions
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIVersionResponse"
-        "501":
-          description: Server doesn't support version advertising.
-  /v1/domain/fetch/:
-    get:
-      tags:
-        - Domains
-      summary: Interface for clients
-      description: Route for requesting domains with scores by a hash prefix
-      operationId: fetch_domains_domain_fetch__post
-      requestBody:
-        description: Data for fetch request
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FetchRequest"
+    /version:
+        get:
+            tags:
+                - Meta
+            summary: Interface for API functionality
+            description:
+                Route for getting information about supported API versions
+            responses:
+                '200':
+                    description: Successful Response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/APIVersionResponse'
+                '501':
+                    description: Server doesn't support version advertising.
+    /v1/domain/fetch/:
+        get:
+            tags:
+                - Domains
+            summary: Interface for clients
+            description:
+                Route for requesting domains with scores by a hash prefix
+            operationId: fetch_domains_domain_fetch__post
+            requestBody:
+                description: Data for fetch request
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/FetchRequest'
 
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AggregatedDomainResponse"
-        "422":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-        "500":
-          description: Internal Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPInternalError"
-  /v1/domain/update/:
-    post:
-      tags:
-        - Domains
-      summary: Interface For Scraper
-      description: Interface for updating the graph database by scrapers. All linked new domains will automatically be inserted into the database
-      operationId: Interface_for_Scraper_domain_update__post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DomainInsertRequest"
-        required: true
-      responses:
-        "202":
-          description: Empty when successfully otherwise see `Validation Error`
-          content:
-            application/json:
-              schema: {}
-        "422":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-        "500":
-          description: Internal Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPInternalError"
-  /v1/ruegen/fetch/:
-    get:
-      tags:
-        - Rügen
-      summary: Interface for clients
-      description: Interface for getting ruegen from the database
-      operationId: test_ruegen_fetch__get
-      requestBody:
-        description: Data for fetch request
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FetchRequest"
-      responses:
-        "200":
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RuegenUpdateRequest"
-        "422":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-        "500":
-          description: Internal Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPInternalError"
-  /v1/ruegen/update/:
-    post:
-      tags:
-        - Rügen
-      summary: Interface for scraper
-      description: Interface used by ruegen scraper to update and/ or add new ruegen to the database
-      operationId: update_ruege_ruegen_update__post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RuegenUpdateRequest"
-        required: true
-      responses:
-        "202":
-          description: Successful update
-        "422":
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-        "500":
-          description: Internal Error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPInternalError"
+            responses:
+                '200':
+                    description: Successful Response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AggregatedDomainResponse'
+                '422':
+                    description: Validation Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPValidationError'
+                '500':
+                    description: Internal Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPInternalError'
+    /v1/domain/update/:
+        post:
+            tags:
+                - Domains
+            summary: Interface For Scraper
+            description:
+                Interface for updating the graph database by scrapers. All
+                linked new domains will automatically be inserted into the
+                database
+            operationId: Interface_for_Scraper_domain_update__post
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DomainInsertRequest'
+                required: true
+            responses:
+                '202':
+                    description:
+                        Empty when successfully otherwise see `Validation Error`
+                    content:
+                        application/json:
+                            schema: {}
+                '422':
+                    description: Validation Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPValidationError'
+                '500':
+                    description: Internal Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPInternalError'
+    /v1/ruegen/fetch/:
+        get:
+            tags:
+                - Rügen
+            summary: Interface for clients
+            description: Interface for getting ruegen from the database
+            operationId: test_ruegen_fetch__get
+            requestBody:
+                description: Data for fetch request
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/FetchRequest'
+            responses:
+                '200':
+                    description: Successful Response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RuegenUpdateRequest'
+                '422':
+                    description: Validation Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPValidationError'
+                '500':
+                    description: Internal Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPInternalError'
+    /v1/ruegen/update/:
+        post:
+            tags:
+                - Rügen
+            summary: Interface for scraper
+            description:
+                Interface used by ruegen scraper to update and/ or add new
+                ruegen to the database
+            operationId: update_ruege_ruegen_update__post
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RuegenUpdateRequest'
+                required: true
+            responses:
+                '202':
+                    description: Successful update
+                '422':
+                    description: Validation Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPValidationError'
+                '500':
+                    description: Internal Error
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HTTPInternalError'
 components:
-  schemas:
-    APIVersionResponse:
-      title: API Version Response
-      type: object
-      required:
-        - "versions"
-      properties:
-        versions:
-          description: Array containing all supported API spec versions as semantic version tags
-          type: array
-          example: ["1.0.0", "1.0.1", "2.0.2b0"]
-          items:
-            type: string
-        notes:
-          description: Notes about API functionality or specific modifications, such as access controls or quotas.
-          type: string
-          example: "Only x amount of requests per minute"
-    AggregatedDomainResponse:
-      title: Aggregated Domain Response
-      required:
-        - domains
-      type: object
-      properties:
-        domains:
-          title: Domains
-          type: array
-          items:
-            $ref: "#/components/schemas/DomainResponse"
-      description: Aggregated model of `DomainResponse`
-    DomainResponse:
-      title: Domain Response
-      type: object
-      properties:
-        fqdn:
-          title: Fqdn
-          type: string
-          default: cnn.com
-        score:
-          title: Score
-          type: array
-          items:
-            type: number
-          default:
-            - 0.6
-            - 0.5
-        last_updated:
-          title: Last Updated
-          type: integer
-          default: 1636756517
-      description: Information about domain including evaluated scores
-    FetchRequest:
-      title: Paginated Fetch Request
-      type: object
-      required:
-        - "fqdn_hash"
-      properties:
-        fqdn_hash:
-          title: FQDN Hash Prefix
-          maxLength: 8
-          minLength: 8
-          type: string
-          description: To ensure a privacy-first design entries are not retrieved by their fqdn but instead by the first 8 bytes of their blake3 hash (32 bytes).
-          example: d774c9et
-        page:
-          title: Page for pagination
-          minimum: 0
-          type: integer
-          description: |
-            All routes that return a list of entries may be paginated when over fifty matching entries exist.
-            Pages are zero indexed, e.g., you need: page = 0, per_page = 100 to get the first 100 entries.
-            If you repeatably hit this limit consider sending more accurate requests.
-          default: 0
-        per_page:
-          title: Items per page
-          maximum: 100
-          minimum: 1
-          type: integer
-          default: 10
-          example: 10
-          description: |
-            How many items should be returned per page
+    schemas:
+        APIVersionResponse:
+            title: API Version Response
+            type: object
+            required:
+                - 'versions'
+            properties:
+                versions:
+                    description:
+                        Array containing all supported API spec versions as
+                        semantic version tags
+                    type: array
+                    example: ['1.0.0', '1.0.1', '2.0.2b0']
+                    items:
+                        type: string
+                notes:
+                    description:
+                        Notes about API functionality or specific modifications,
+                        such as access controls or quotas.
+                    type: string
+                    example: 'Only x amount of requests per minute'
+        AggregatedDomainResponse:
+            title: Aggregated Domain Response
+            required:
+                - domains
+            type: object
+            properties:
+                domains:
+                    title: Domains
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/DomainResponse'
+            description: Aggregated model of `DomainResponse`
+        DomainResponse:
+            title: Domain Response
+            type: object
+            properties:
+                fqdn:
+                    title: Fqdn
+                    type: string
+                    default: cnn.com
+                score:
+                    title: Score
+                    type: array
+                    items:
+                        type: number
+                    default:
+                        - 0.6
+                        - 0.5
+                last_updated:
+                    title: Last Updated
+                    type: integer
+                    default: 1636756517
+            description: Information about domain including evaluated scores
+        FetchRequest:
+            title: Paginated Fetch Request
+            type: object
+            required:
+                - 'fqdn_hash'
+            properties:
+                fqdn_hash:
+                    title: FQDN Hash Prefix
+                    maxLength: 8
+                    minLength: 8
+                    type: string
+                    description:
+                        To ensure a privacy-first design entries are not
+                        retrieved by their fqdn but instead by the first 8 bytes
+                        of their blake3 hash (32 bytes).
+                    example: d774c9et
+                page:
+                    title: Page for pagination
+                    minimum: 0
+                    type: integer
+                    description: |
+                        All routes that return a list of entries may be paginated when over fifty matching entries exist.
+                        Pages are zero indexed, e.g., you need: page = 0, per_page = 100 to get the first 100 entries.
+                        If you repeatably hit this limit consider sending more accurate requests.
+                    default: 0
+                per_page:
+                    title: Items per page
+                    maximum: 100
+                    minimum: 1
+                    type: integer
+                    default: 10
+                    example: 10
+                    description: |
+                        How many items should be returned per page
 
-            > `page x per_page = number of items`
-    HTTPInternalError:
-      title: HTTP InternalError
-      type: object
-      properties:
-        detail:
-          title: Details about the specific error
-          type: array
-          items:
-            $ref: "#/components/schemas/InternalError"
-    HTTPValidationError:
-      title: HTTP ValidationError
-      type: object
-      properties:
-        detail:
-          title: Details about the specific error
-          type: array
-          items:
-            $ref: "#/components/schemas/ValidationError"
-    DomainInsertRequest:
-      title: Domain Insert Request
-      type: object
-      properties:
-        fqdn:
-          title: Domain
-          type: string
-          default: example.org
-          description: FQDN of source that references FQDNs supplied in links. API may only accept converted punycode for newer FQDNs.
-        network:
-          title: Network
-          type: boolean
-          default: true
-        links:
-          title: Links
-          type: array
-          items:
-            type: string
-          default: []
-        last_updated:
-          title: Last Updated
-          type: integer
-          default: -1
-      description: Request for inserting and/ or updating content on graph
-    RuegenUpdateRequest:
-      title: RuegenUpdateRequest
-      required:
-        - medium
-        - identifier
-        - title
-        - ziffer
-        - year
-      type: object
-      properties:
-        medium:
-          title: Medium
-          type: string
-        identifier:
-          title: Identifier
-          type: string
-        title:
-          title: Title
-          type: string
-        ziffer:
-          title: Ziffer
-          type: string
-        year:
-          title: Year
-          type: integer
-      description: Request for updating or creating a new Ruege
-    ValidationError:
-      title: Validation Error
-      required:
-        - loc
-        - msg
-        - type
-      type: object
-      properties:
-        loc:
-          title: Location
-          type: array
-          items:
-            type: string
-        msg:
-          title: Message
-          type: string
-        type:
-          title: Error Type
-          type: string
-    InternalError:
-      title: Internal Processing Error
-      required:
-        - msg
-        - type
-      type: object
-      properties:
-        msg:
-          title: Message
-          type: string
-        type:
-          title: Error Type
-          type: string
+                        > `page x per_page = number of items`
+        HTTPInternalError:
+            title: HTTP InternalError
+            type: object
+            properties:
+                detail:
+                    title: Details about the specific error
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/InternalError'
+        HTTPValidationError:
+            title: HTTP ValidationError
+            type: object
+            properties:
+                detail:
+                    title: Details about the specific error
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ValidationError'
+        DomainInsertRequest:
+            title: Domain Insert Request
+            type: object
+            properties:
+                fqdn:
+                    title: Domain
+                    type: string
+                    default: cobalt.rocks
+                    description:
+                        FQDN of source that references FQDNs supplied in links.
+                        API may only accept converted punycode for newer FQDNs.
+                network:
+                    title: Network
+                    type: boolean
+                    default: true
+                links:
+                    title: Links
+                    type: array
+                    items:
+                        type: object
+                        properties:
+                            count:
+                                title: Link Count from source to target
+                                type: number
+                            target:
+                                title: Target FQDN
+                                type: string
+                    default: []
+                    example: [{ count: 2, target: 'en.wikipedia.org' }]
+                last_updated:
+                    title: Last Updated Timestamp
+                    type: integer
+                    default: 0
+                    example: 1637003167
+            description: Request for inserting and/ or updating content on graph
+        RuegenUpdateRequest:
+            title: RuegenUpdateRequest
+            required:
+                - medium
+                - identifier
+                - title
+                - ziffer
+                - year
+            type: object
+            properties:
+                medium:
+                    title: Medium
+                    type: string
+                identifier:
+                    title: Identifier
+                    type: string
+                title:
+                    title: Title
+                    type: string
+                ziffer:
+                    title: Ziffer
+                    type: string
+                year:
+                    title: Year
+                    type: integer
+            description: Request for updating or creating a new Ruege
+        ValidationError:
+            title: Validation Error
+            required:
+                - loc
+                - msg
+                - type
+            type: object
+            properties:
+                loc:
+                    title: Location
+                    type: array
+                    items:
+                        type: string
+                msg:
+                    title: Message
+                    type: string
+                type:
+                    title: Error Type
+                    type: string
+        InternalError:
+            title: Internal Processing Error
+            required:
+                - msg
+                - type
+            type: object
+            properties:
+                msg:
+                    title: Message
+                    type: string
+                type:
+                    title: Error Type
+                    type: string

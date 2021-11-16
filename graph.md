@@ -56,3 +56,35 @@ NP-hard since you need to remove circular references.
 4. Direct cache for requests with redis
 5. Cache common hotspot paths and duplicates (a -> d -> c; b -> c => b -> and
    discard path (not value) or d->c)
+
+## Cycle removal algorithm
+
+Given set of root nodes $D_r$ and set of all nodes as $D_t$ with
+$D_r \subset D_t$.
+
+Get all links from $D_r$ as $L_{u}$ and mark nodes.
+
+Iteraitvely weight all links in $L_u$ that reference nodes in $D_u$ and weight +
+mark them.
+
+Iteratively weight all remaining unmarked linked nodes and mark all remaining
+nodes in $D_u$. Build new link set for $L_u$ from linked, unmarked nodes of
+nodes in $D_u$
+
+```
+dr = [...]
+
+fn decycle(domain, path):
+   for links of domain:
+      if links.target in path:
+         delete links
+      else:
+         decycle(links.target, path + [domain])
+
+
+for domain in dr:
+   decycle(domain)
+```
+
+Create a path -> advance the path by going steps and split up on each bend ->
+When link that points to node in path is met => remove link
